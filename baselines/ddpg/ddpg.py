@@ -220,34 +220,34 @@ class DDPG(object):
         ops = []
         names = []
 
-        if self.normalize_returns:
-            ops += [self.ret_rms.mean, self.ret_rms.std]
-            names += ['ret_rms_mean', 'ret_rms_std']
+        # if self.normalize_returns:
+        #     ops += [self.ret_rms.mean, self.ret_rms.std]
+        #     names += ['ret_rms_mean', 'ret_rms_std']
 
-        if self.normalize_observations:
-            ops += [tf.reduce_mean(self.obs_rms.mean), tf.reduce_mean(self.obs_rms.std)]
-            names += ['obs_rms_mean', 'obs_rms_std']
+        # if self.normalize_observations:
+        #     ops += [tf.reduce_mean(self.obs_rms.mean), tf.reduce_mean(self.obs_rms.std)]
+        #     names += ['obs_rms_mean', 'obs_rms_std']
 
-        ops += [tf.reduce_mean(self.critic_tf)]
-        names += ['reference_Q_mean']
-        ops += [reduce_std(self.critic_tf)]
-        names += ['reference_Q_std']
+        # ops += [tf.reduce_mean(self.critic_tf)]
+        # names += ['reference_Q_mean']
+        # ops += [reduce_std(self.critic_tf)]
+        # names += ['reference_Q_std']
 
-        ops += [tf.reduce_mean(self.critic_with_actor_tf)]
-        names += ['reference_actor_Q_mean']
-        ops += [reduce_std(self.critic_with_actor_tf)]
-        names += ['reference_actor_Q_std']
+        # ops += [tf.reduce_mean(self.critic_with_actor_tf)]
+        # names += ['reference_actor_Q_mean']
+        # ops += [reduce_std(self.critic_with_actor_tf)]
+        # names += ['reference_actor_Q_std']
 
-        ops += [tf.reduce_mean(self.actor_tf)]
-        names += ['reference_action_mean']
-        ops += [reduce_std(self.actor_tf)]
-        names += ['reference_action_std']
+        # ops += [tf.reduce_mean(self.actor_tf)]
+        # names += ['reference_action_mean']
+        # ops += [reduce_std(self.actor_tf)]
+        # names += ['reference_action_std']
 
-        if self.param_noise:
-            ops += [tf.reduce_mean(self.perturbed_actor_tf)]
-            names += ['reference_perturbed_action_mean']
-            ops += [reduce_std(self.perturbed_actor_tf)]
-            names += ['reference_perturbed_action_std']
+        # if self.param_noise:
+        #     ops += [tf.reduce_mean(self.perturbed_actor_tf)]
+        #     names += ['reference_perturbed_action_mean']
+        #     ops += [reduce_std(self.perturbed_actor_tf)]
+        #     names += ['reference_perturbed_action_std']
 
         self.stats_ops = ops
         self.stats_names = names

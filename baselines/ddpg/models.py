@@ -8,11 +8,25 @@ class Model(object):
 
     @property
     def vars(self):
-        return tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.name)
+        if self.name == "actor" or self.name == "critic":
+            return tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.name) + tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="shared_train")
+        if self.name == "target_actor" or self.name == "target_critic":
+            return tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.name) + tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="shared_target")
+        if self.name == "param_noise_actor":
+            return tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.name) + tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="shared_param_noise")
+        if self.name == "adaptive_param_noise_actor":
+            return tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.name) + tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="shared_adaptive_param_noise")
 
     @property
     def trainable_vars(self):
-        return tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=self.name)
+        if self.name == "actor" or self.name == "critic":
+            return tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=self.name) + tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="shared_train")
+        if self.name == "target_actor" or self.name == "target_critic":
+            return tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=self.name) + tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="shared_target")
+        if self.name == "param_noise_actor":
+            return tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=self.name) + tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="shared_param_noise")
+        if self.name == "adaptive_param_noise_actor":
+            return tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=self.name) + tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="shared_adaptive_param_noise")
 
     @property
     def perturbable_vars(self):
@@ -26,15 +40,34 @@ class Actor(Model):
         self.layer_norm = layer_norm
 
     def __call__(self, obs, reuse=False):
+        share_scope = ""
+        if self.name == "actor":
+            share_scope = "shared_train"
+        elif self.name == "target_actor":
+            share_scope = "shared_target"
+        elif self.name == "param_noise_actor":
+            share_scope = "shared_param_noise"
+        elif self.name == "adaptive_param_noise_actor":
+            share_scope = "shared_adaptive_param_noise"
+
+        with tf.variable_scope(share_scope, reuse=tf.AUTO_REUSE):
+            x = obs
+            x = tf.layers.dense(x, 64)
+        
+            if self.layer_norm:
+                x = tc.layers.layer_norm(x, center=True, scale=True)
+            x = tf.nn.relu(x)
+
         with tf.variable_scope(self.name) as scope:
             if reuse:
                 scope.reuse_variables()
 
-            x = obs
-            x = tf.layers.dense(x, 64)
-            if self.layer_norm:
-                x = tc.layers.layer_norm(x, center=True, scale=True)
-            x = tf.nn.relu(x)
+            # x = obs
+            # x = tf.layers.dense(x, 64)
+        
+            # if self.layer_norm:
+            #     x = tc.layers.layer_norm(x, center=True, scale=True)
+            # x = tf.nn.relu(x)
             
             x = tf.layers.dense(x, 64)
             if self.layer_norm:
@@ -45,22 +78,36 @@ class Actor(Model):
             x = tf.nn.tanh(x)
         return x
 
-
 class Critic(Model):
     def __init__(self, name='critic', layer_norm=True):
         super(Critic, self).__init__(name=name)
         self.layer_norm = layer_norm
 
     def __call__(self, obs, action, reuse=False):
+        share_scope = ""
+        if self.name == "critic":
+            share_scope = "shared_train"
+        elif self.name == "target_critic":
+            share_scope = "shared_target"
+
+        with tf.variable_scope(share_scope, reuse=tf.AUTO_REUSE):
+            x = obs
+            x = tf.layers.dense(x, 64)
+
+            if self.layer_norm:
+                x = tc.layers.layer_norm(x, center=True, scale=True)
+            x = tf.nn.relu(x)
+
         with tf.variable_scope(self.name) as scope:
             if reuse:
                 scope.reuse_variables()
 
-            x = obs
-            x = tf.layers.dense(x, 64)
-            if self.layer_norm:
-                x = tc.layers.layer_norm(x, center=True, scale=True)
-            x = tf.nn.relu(x)
+            # x = obs
+            # x = tf.layers.dense(x, 64)
+
+            # if self.layer_norm:
+            #     x = tc.layers.layer_norm(x, center=True, scale=True)
+            # x = tf.nn.relu(x)
 
             x = tf.concat([x, action], axis=-1)
             x = tf.layers.dense(x, 64)
@@ -75,3 +122,4 @@ class Critic(Model):
     def output_vars(self):
         output_vars = [var for var in self.trainable_vars if 'output' in var.name]
         return output_vars
+

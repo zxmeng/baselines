@@ -95,6 +95,11 @@ def train(env, nb_epochs, nb_epoch_cycles, render_eval, reward_scale, render, pa
                         epoch_episode_rewards.append(episode_reward)
                         episode_rewards_history.append(episode_reward)
                         epoch_episode_steps.append(episode_step)
+
+                        # print("******************************")
+                        print("Episode: ", episodes, ", Avg Reward: ", np.mean(episode_rewards_history), ", Reward: ", episode_reward, " : ", np.mean(epoch_episode_rewards), ", : ", episode_reward / episode_step)
+                        # print("Rewards: ", episode_reward)
+
                         episode_reward = 0.
                         episode_step = 0
                         epoch_episodes += 1
@@ -143,19 +148,19 @@ def train(env, nb_epochs, nb_epoch_cycles, render_eval, reward_scale, render, pa
             duration = time.time() - start_time
             stats = agent.get_stats()
             combined_stats = stats.copy()
-            combined_stats['rollout/return'] = np.mean(epoch_episode_rewards)
-            combined_stats['rollout/return_history'] = np.mean(episode_rewards_history)
-            combined_stats['rollout/episode_steps'] = np.mean(epoch_episode_steps)
-            combined_stats['rollout/actions_mean'] = np.mean(epoch_actions)
-            combined_stats['rollout/Q_mean'] = np.mean(epoch_qs)
-            combined_stats['train/loss_actor'] = np.mean(epoch_actor_losses)
-            combined_stats['train/loss_critic'] = np.mean(epoch_critic_losses)
-            combined_stats['train/param_noise_distance'] = np.mean(epoch_adaptive_distances)
-            combined_stats['total/duration'] = duration
-            combined_stats['total/steps_per_second'] = float(t) / float(duration)
+            # combined_stats['rollout/return'] = np.mean(epoch_episode_rewards)
+            # combined_stats['rollout/return_history'] = np.mean(episode_rewards_history)
+            # combined_stats['rollout/episode_steps'] = np.mean(epoch_episode_steps)
+            # combined_stats['rollout/actions_mean'] = np.mean(epoch_actions)
+            # combined_stats['rollout/Q_mean'] = np.mean(epoch_qs)
+            # combined_stats['train/loss_actor'] = np.mean(epoch_actor_losses)
+            # combined_stats['train/loss_critic'] = np.mean(epoch_critic_losses)
+            # combined_stats['train/param_noise_distance'] = np.mean(epoch_adaptive_distances)
+            # combined_stats['total/duration'] = duration
+            # combined_stats['total/steps_per_second'] = float(t) / float(duration)
             combined_stats['total/episodes'] = episodes
-            combined_stats['rollout/episodes'] = epoch_episodes
-            combined_stats['rollout/actions_std'] = np.std(epoch_actions)
+            # combined_stats['rollout/episodes'] = epoch_episodes
+            # combined_stats['rollout/actions_std'] = np.std(epoch_actions)
             # Evaluation statistics.
             if eval_env is not None:
                 combined_stats['eval/return'] = eval_episode_rewards
@@ -174,8 +179,8 @@ def train(env, nb_epochs, nb_epoch_cycles, render_eval, reward_scale, render, pa
             combined_stats = {k : v / mpi_size for (k,v) in zip(combined_stats.keys(), combined_stats_sums)}
 
             # Total statistics.
-            combined_stats['total/epochs'] = epoch + 1
-            combined_stats['total/steps'] = t
+            # combined_stats['total/epochs'] = epoch + 1
+            # combined_stats['total/steps'] = t
 
             for key in sorted(combined_stats.keys()):
                 logger.record_tabular(key, combined_stats[key])
