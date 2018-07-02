@@ -96,9 +96,7 @@ def train(env, nb_epochs, nb_epoch_cycles, render_eval, reward_scale, render, pa
                         episode_rewards_history.append(episode_reward)
                         epoch_episode_steps.append(episode_step)
 
-                        # print("******************************")
-                        print("Episode: ", episodes, ", Avg Reward: ", np.mean(episode_rewards_history), ", Reward: ", episode_reward, " : ", np.mean(epoch_episode_rewards), ", : ", episode_reward / episode_step)
-                        # print("Rewards: ", episode_reward)
+                        print("Episode: ", episodes, ", Avg Reward: ", np.mean(episode_rewards_history), ", : ", episode_reward, ", : ", np.mean(epoch_episode_rewards), ", : ", episode_reward / episode_step)
 
                         episode_reward = 0.
                         episode_step = 0
@@ -158,7 +156,7 @@ def train(env, nb_epochs, nb_epoch_cycles, render_eval, reward_scale, render, pa
             # combined_stats['train/param_noise_distance'] = np.mean(epoch_adaptive_distances)
             # combined_stats['total/duration'] = duration
             # combined_stats['total/steps_per_second'] = float(t) / float(duration)
-            combined_stats['total/episodes'] = episodes
+            # combined_stats['total/episodes'] = episodes
             # combined_stats['rollout/episodes'] = epoch_episodes
             # combined_stats['rollout/actions_std'] = np.std(epoch_actions)
             # Evaluation statistics.
@@ -184,7 +182,7 @@ def train(env, nb_epochs, nb_epoch_cycles, render_eval, reward_scale, render, pa
 
             for key in sorted(combined_stats.keys()):
                 logger.record_tabular(key, combined_stats[key])
-            logger.dump_tabular()
+            # logger.dump_tabular()
             logger.info('')
             logdir = logger.get_dir()
             if rank == 0 and logdir:
